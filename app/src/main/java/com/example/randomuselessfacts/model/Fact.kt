@@ -1,9 +1,15 @@
 package com.example.randomuselessfacts.model
 
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
+@Entity(
+    tableName = "Facts"
+)
 data class Fact(
+    @PrimaryKey(autoGenerate = false)
     @SerializedName("id")
     val id: String,
     @SerializedName("language")

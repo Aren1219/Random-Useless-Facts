@@ -1,12 +1,18 @@
 package com.example.randomuselessfacts.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -19,32 +25,53 @@ import com.example.randomuselessfacts.util.Resource
 
 @Composable
 fun DailyFactPage(viewModel: MainViewModel){
-    var showRandom by remember { mutableStateOf(false) }
+    var showRandom by rememberSaveable { mutableStateOf(false) }
+
     val dailyFact = viewModel.dailyFact.observeAsState()
     val randomFact = viewModel.randomFact.observeAsState()
+
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        UiState(liveData = dailyFact, "Daily useless fact")
+        UiState(
+            liveData = dailyFact,
+            "Daily useless fact"
+        ) { fact ->
+            viewModel.saveFact(fact)
+            Toast.makeText(context, "Saved!", Toast.LENGTH_SHORT).show()
+        }
         RandomButton {
             showRandom = true
             viewModel.getRandomFact()
         }
         if (showRandom)
-            UiState(liveData = randomFact,"Random useless fact")
+            UiState(
+                liveData = randomFact,
+                "Random useless fact"
+            ) { fact ->
+                viewModel.saveFact(fact)
+                Toast.makeText(context, "Saved!", Toast.LENGTH_SHORT).show()
+            }
     }
 }
 
 @Composable
-fun UiState(liveData: State<Resource<Fact>?>, cardTitle:String) {
+fun UiState(
+    liveData: State<Resource<Fact>?>,
+    cardTitle:String,
+    saveFact: (Fact) -> Unit
+) {
     when (liveData.value) {
         is Resource.Success<*> -> {
             FactCard(
                 liveData.value!!.data!!,
-                cardTitle
-            )
+                cardTitle,
+                Icons.Default.Favorite
+            ) { saveFact(liveData.value!!.data!!) }
         }
         is Resource.Loading -> {
             CircularProgressIndicator()
@@ -56,7 +83,12 @@ fun UiState(liveData: State<Resource<Fact>?>, cardTitle:String) {
 }
 
 @Composable
-fun FactCard(fact: Fact, title: String?) {
+fun FactCard(
+    fact: Fact,
+    title: String?,
+    buttonIcon: ImageVector,
+    onClick: () -> Unit,
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -87,16 +119,26 @@ fun FactCard(fact: Fact, title: String?) {
                 pop()
             }
             val uriHandler = LocalUriHandler.current
-            ClickableText(
-                modifier = Modifier.align(Alignment.End),
-                text = annotatedString,
-                onClick = { offset ->
-                annotatedString.getStringAnnotations(tag = "url", start = offset, end = offset)
-                    .firstOrNull()?.let {
-                        uriHandler.openUri(it.item)
+            Box(
+                modifier = Modifier.fillMaxWidth().height(30.dp),
+            ){
+                ClickableText(
+                    modifier = Modifier.align(Alignment.TopStart),
+                    text = annotatedString,
+                    onClick = { offset ->
+                        annotatedString.getStringAnnotations(tag = "url", start = offset, end = offset)
+                            .firstOrNull()?.let {
+                                uriHandler.openUri(it.item)
+                            }
                     }
+                )
+                IconButton(
+                    onClick = {onClick()},
+                    modifier = Modifier.align(Alignment.TopEnd)
+                ) {
+                    Icon(imageVector = buttonIcon, null)
                 }
-            )
+            }
         }
     }
 }
@@ -117,7 +159,7 @@ fun PreviewDailyFact(){
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            FactCard(fact, "Daily useless fact")
+            FactCard(fact, "Daily useless fact",Icons.Default.Favorite) {}
             RandomButton {}
         }
     }

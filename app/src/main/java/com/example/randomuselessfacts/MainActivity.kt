@@ -5,15 +5,23 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.example.randomuselessfacts.ui.DailyFactPage
 import com.example.randomuselessfacts.ui.MainViewModel
+import com.example.randomuselessfacts.ui.SavedFactsPage
 import com.example.randomuselessfacts.ui.theme.RandomUselessFactsTheme
+import com.example.randomuselessfacts.util.Screen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -31,8 +39,55 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    DailyFactPage(viewModel = viewModel)
+                    Navigation(viewModel = viewModel)
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun Navigation(
+    viewModel: MainViewModel
+){
+
+    val navController = rememberNavController()
+    val items = listOf(Screen.DailyFact, Screen.SavedFacts)
+
+    val listState = rememberLazyListState()
+
+    Scaffold(
+        bottomBar = {
+            BottomNavigation {
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentDestination = navBackStackEntry?.destination
+                items.forEach { screen ->
+                    BottomNavigationItem(
+                        selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                        onClick = {
+                            navController.navigate(screen.route){
+                                popUpTo(navController.graph.findStartDestination().id) {saveState = true}
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
+                        icon = { Icon(screen.icon, null) },
+                        label = { Text(text = screen.title) }
+                    )
+                }
+            }
+        }
+    ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = Screen.DailyFact.route,
+            modifier = Modifier.padding(innerPadding)
+        ){
+            composable(Screen.DailyFact.route) {
+                DailyFactPage(viewModel = viewModel)
+            }
+            composable(Screen.SavedFacts.route) {
+                SavedFactsPage(viewModel = viewModel, listState = listState)
             }
         }
     }
