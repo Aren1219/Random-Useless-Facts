@@ -11,6 +11,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -57,6 +58,11 @@ fun Navigation(
     val listState = rememberLazyListState()
 
     Scaffold(
+        topBar = {
+            TopAppBar() {
+                Text(text = stringResource(R.string.app_name), style = MaterialTheme.typography.h6)
+            }
+        },
         bottomBar = {
             BottomNavigation {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
