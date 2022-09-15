@@ -8,8 +8,8 @@ import retrofit2.Response
 import javax.inject.Inject
 
 class RepositoryImp @Inject constructor(
-    val factsApi: FactsApi,
-    val factDao: FactDao
+    private val factsApi: FactsApi,
+    private val factDao: FactDao
 ): Repository {
 
     override suspend fun getRandomFact(): Response<Fact> = factsApi.getRandomFact()

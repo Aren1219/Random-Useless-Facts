@@ -1,8 +1,11 @@
 package com.example.randomuselessfacts.ui
 
 import android.widget.Toast
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -33,7 +36,9 @@ fun DailyFactPage(viewModel: MainViewModel){
     val context = LocalContext.current
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -120,7 +125,9 @@ fun FactCard(
             }
             val uriHandler = LocalUriHandler.current
             Box(
-                modifier = Modifier.fillMaxWidth().height(30.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(30.dp),
             ){
                 ClickableText(
                     modifier = Modifier.align(Alignment.TopStart),

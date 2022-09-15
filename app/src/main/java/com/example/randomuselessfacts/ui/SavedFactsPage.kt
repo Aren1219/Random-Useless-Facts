@@ -27,7 +27,7 @@ fun SavedFactsPage(viewModel: MainViewModel, listState: LazyListState){
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = "Nothing here..")
+            Text(text = "Nothing here...")
         }
     } else {
         FactsList(list = list.value!!, listState = listState) { fact -> viewModel.deleteFact(fact) }
