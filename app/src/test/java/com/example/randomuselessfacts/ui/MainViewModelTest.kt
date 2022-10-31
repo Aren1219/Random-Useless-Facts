@@ -1,7 +1,6 @@
 package com.example.randomuselessfacts.ui
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.viewmodel.compose.viewModel
 import app.cash.turbine.test
 import com.example.randomuselessfacts.DummyData.getDummyFact
 import com.example.randomuselessfacts.getOrAwaitValue
@@ -12,18 +11,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import kotlin.time.ExperimentalTime
 
-class MainViewModelTest{
+class MainViewModelTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val testDispatcher = StandardTestDispatcher()
@@ -33,7 +31,7 @@ class MainViewModelTest{
 
     private lateinit var viewModel: MainViewModel
 
-    private lateinit var fakeRepo : FakeRepository
+    private lateinit var fakeRepo: FakeRepository
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Before
@@ -46,7 +44,7 @@ class MainViewModelTest{
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @After
-    fun cleanUp(){
+    fun cleanUp() {
         Dispatchers.resetMain()
     }
 
@@ -70,7 +68,6 @@ class MainViewModelTest{
         assertTrue(result is Resource.Error)
     }
 
-    @OptIn(ExperimentalTime::class)
     @Test
     fun `save fact`() = runBlocking {
         viewModel.saveFact(getDummyFact())
@@ -79,7 +76,6 @@ class MainViewModelTest{
         }
     }
 
-    @OptIn(ExperimentalTime::class)
     @Test
     fun `delete fact`() = runBlocking {
         viewModel.saveFact(getDummyFact())

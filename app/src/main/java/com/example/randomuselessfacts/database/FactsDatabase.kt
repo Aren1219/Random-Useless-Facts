@@ -6,7 +6,8 @@ import com.example.randomuselessfacts.model.Fact
 
 @Database(
     entities = [Fact::class],
-    version = 1
+    version = 1,
+    exportSchema = false
 )
 abstract class FactsDatabase : RoomDatabase() {
     abstract fun getDao(): FactDao
