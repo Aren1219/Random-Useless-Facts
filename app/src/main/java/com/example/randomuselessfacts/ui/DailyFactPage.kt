@@ -50,7 +50,7 @@ fun DailyFactPage(viewModel: MainViewModel) {
             cardTitle = "Daily Fact",
             { fact ->
                 viewModel.saveFact(fact)
-                android.widget.Toast.makeText(context, "Saved!", android.widget.Toast.LENGTH_SHORT)
+                Toast.makeText(context, "Saved!", Toast.LENGTH_SHORT)
                     .show()
                 saved1 = true
             },
@@ -67,10 +67,10 @@ fun DailyFactPage(viewModel: MainViewModel) {
                 cardTitle = "Random Fact",
                 { fact ->
                     viewModel.saveFact(fact)
-                    android.widget.Toast.makeText(
+                    Toast.makeText(
                         context,
                         "Saved!",
-                        android.widget.Toast.LENGTH_SHORT
+                        Toast.LENGTH_SHORT
                     ).show()
                     saved2 = true
                 },

@@ -5,7 +5,7 @@ import com.example.randomuselessfacts.model.Fact
 object DummyData {
 
     fun getDummyFact(id: String? = null) = Fact(
-        id?: "162gvf321761d",
+        id ?: "162gvf321761d",
         "en",
         "",
         "djtech.net",

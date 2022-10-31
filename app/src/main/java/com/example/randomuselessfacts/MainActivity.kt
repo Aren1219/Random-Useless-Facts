@@ -59,7 +59,7 @@ fun Navigation(
 
     Scaffold(
         topBar = {
-            TopAppBar() {
+            TopAppBar {
                 Text(text = stringResource(R.string.app_name), style = MaterialTheme.typography.h6)
             }
         },

@@ -1,19 +1,21 @@
 package com.example.randomuselessfacts.repo
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.example.randomuselessfacts.DummyData.getDummyFact
 import com.example.randomuselessfacts.model.Fact
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody.Companion.toResponseBody
 import retrofit2.Response
 
-class FakeRepository: Repository{
+class FakeRepository : Repository {
 
     var errorResponse: Boolean = false
 
-    private val savedList: MutableList<Fact> = mutableListOf()
-    private val _savedFacts: MutableLiveData<List<Fact>> = MutableLiveData(savedList)
+    private val savedFactsFlow: Flow<List<Fact>> = flow {
+        emit(savedFacts)
+    }
+    private val savedFacts: MutableList<Fact> = mutableListOf()
 
     override suspend fun getRandomFact(): Response<Fact> {
         return if (!errorResponse) Response.success(getDummyFact())
@@ -31,12 +33,12 @@ class FakeRepository: Repository{
     override suspend fun getDailyFact(): Response<Fact> = Response.success(getDummyFact(null))
 
     override suspend fun saveFact(fact: Fact) {
-        savedList.add(fact)
+        savedFacts.add(fact)
     }
 
-    override fun readFacts(): LiveData<List<Fact>> = _savedFacts
+    override fun readFacts(): Flow<List<Fact>> = savedFactsFlow
 
     override suspend fun deleteFact(fact: Fact) {
-        savedList.remove(fact)
+        savedFacts.remove(fact)
     }
 }

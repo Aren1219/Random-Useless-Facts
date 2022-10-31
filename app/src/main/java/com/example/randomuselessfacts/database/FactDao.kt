@@ -1,17 +1,17 @@
 package com.example.randomuselessfacts.database
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.example.randomuselessfacts.model.Fact
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FactDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insertFact(fact: Fact)
+    suspend fun insertFact(fact: Fact)
 
     @Query("SELECT * FROM facts")
-    fun getAllFacts(): LiveData<List<Fact>>
+    fun getAllFacts(): Flow<List<Fact>>
 
     @Delete
     suspend fun deleteFact(data: Fact)

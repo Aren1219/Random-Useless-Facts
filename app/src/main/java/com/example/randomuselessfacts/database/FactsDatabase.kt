@@ -8,6 +8,6 @@ import com.example.randomuselessfacts.model.Fact
     entities = [Fact::class],
     version = 1
 )
-abstract class FactsDatabase: RoomDatabase() {
+abstract class FactsDatabase : RoomDatabase() {
     abstract fun getDao(): FactDao
 }

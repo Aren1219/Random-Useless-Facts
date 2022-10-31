@@ -2,7 +2,6 @@ package com.example.randomuselessfacts.util
 
 import android.content.Context
 import androidx.room.Room
-import androidx.room.RoomDatabase
 import com.example.randomuselessfacts.api.ApiReferences
 import com.example.randomuselessfacts.api.FactsApi
 import com.example.randomuselessfacts.database.FactDao

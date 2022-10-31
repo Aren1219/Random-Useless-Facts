@@ -10,12 +10,13 @@ sealed class Screen(
     val title: String,
     val icon: ImageVector
 ) {
-    object DailyFact: Screen(
+    object DailyFact : Screen(
         route = "daily_fact",
         title = "Daily Fact",
         icon = Icons.Default.Home
     )
-    object SavedFacts: Screen(
+
+    object SavedFacts : Screen(
         route = "saved_facts",
         title = "Saved Facts",
         icon = Icons.Default.Favorite
