@@ -30,7 +30,6 @@ class MainViewModel @Inject constructor(
     private val _randomFact: MutableLiveData<Resource<Fact>> = MutableLiveData()
     val randomFact: LiveData<Resource<Fact>> = _randomFact
 
-    var shouldDisplayRandom = mutableStateOf(false)
     var isDailyFactSaved = mutableStateOf(false)
     var isRandomFactSaved = mutableStateOf(false)
 
@@ -69,7 +68,6 @@ class MainViewModel @Inject constructor(
 //    private fun checkIsFactSaved(id: String) = savedFacts.value.find { it.id == id } != null
 
     fun getRandomFact() {
-        shouldDisplayRandom.value = true
         isRandomFactSaved.value = false
         if (dailyFact.value is Resource.Error)
             getDailyFact()
@@ -88,13 +86,13 @@ class MainViewModel @Inject constructor(
 
     fun saveFact(fact: Fact) = viewModelScope.launch(Dispatchers.IO) {
         repository.saveFact(fact)
-        if (fact.id == _dailyFact.value!!.data!!.id) isDailyFactSaved.value = true
-        if (fact.id == _randomFact.value!!.data!!.id) isRandomFactSaved.value = true
+        if (fact.id == _dailyFact.value?.data?.id) isDailyFactSaved.value = true
+        if (fact.id == _randomFact.value?.data?.id) isRandomFactSaved.value = true
     }
 
     fun deleteFact(fact: Fact) = viewModelScope.launch(Dispatchers.IO) {
         repository.deleteFact(fact)
-        if (fact.id == _dailyFact.value!!.data!!.id) isDailyFactSaved.value = false
-        if (fact.id == _randomFact.value!!.data!!.id) isRandomFactSaved.value = false
+        if (fact.id == _dailyFact.value?.data?.id) isDailyFactSaved.value = false
+        if (fact.id == _randomFact.value?.data?.id) isRandomFactSaved.value = false
     }
 }

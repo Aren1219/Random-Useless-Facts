@@ -50,10 +50,8 @@ fun DailyFactPage(viewModel: MainViewModel) {
             },
             viewModel.isDailyFactSaved.value
         )
-        RandomButton {
-            viewModel.getRandomFact()
-        }
-        if (viewModel.shouldDisplayRandom.value)
+        RandomButton { viewModel.getRandomFact() }
+        if (randomFact.value != null)
             UiState(
                 liveData = randomFact,
                 cardTitle = "Random Fact",
