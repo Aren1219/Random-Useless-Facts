@@ -28,15 +28,11 @@ import com.example.randomuselessfacts.util.Resource
 
 @Composable
 fun DailyFactPage(viewModel: MainViewModel) {
-    var showRandom by rememberSaveable { mutableStateOf(false) }
 
     val dailyFact = viewModel.dailyFact.observeAsState()
     val randomFact = viewModel.randomFact.observeAsState()
 
     val context = LocalContext.current
-
-    var saved1 by rememberSaveable { mutableStateOf(false) }
-    var saved2 by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -50,31 +46,22 @@ fun DailyFactPage(viewModel: MainViewModel) {
             cardTitle = "Daily Fact",
             { fact ->
                 viewModel.saveFact(fact)
-                Toast.makeText(context, "Saved!", Toast.LENGTH_SHORT)
-                    .show()
-                saved1 = true
+                Toast.makeText(context, "Saved!", Toast.LENGTH_SHORT).show()
             },
-            saved1
+            viewModel.isDailyFactSaved.value
         )
         RandomButton {
-            showRandom = true
             viewModel.getRandomFact()
-            saved2 = false
         }
-        if (showRandom)
+        if (viewModel.shouldDisplayRandom.value)
             UiState(
                 liveData = randomFact,
                 cardTitle = "Random Fact",
                 { fact ->
                     viewModel.saveFact(fact)
-                    Toast.makeText(
-                        context,
-                        "Saved!",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    saved2 = true
+                    Toast.makeText(context, "Saved!", Toast.LENGTH_SHORT).show()
                 },
-                saved2
+                viewModel.isRandomFactSaved.value
             )
     }
 }
