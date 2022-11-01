@@ -30,7 +30,6 @@ class MainViewModelTest {
     val instantTaskExecutionRule: TestRule = InstantTaskExecutorRule()
 
     private lateinit var viewModel: MainViewModel
-
     private lateinit var fakeRepo: FakeRepository
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -71,8 +70,9 @@ class MainViewModelTest {
     @Test
     fun `save fact`() = runBlocking {
         viewModel.saveFact(getDummyFact())
-        viewModel.savedFacts.test {
+        fakeRepo.readFacts().test {
             assertEquals(listOf(getDummyFact()), this.awaitItem())
+            this.awaitComplete()
         }
     }
 
@@ -80,8 +80,9 @@ class MainViewModelTest {
     fun `delete fact`() = runBlocking {
         viewModel.saveFact(getDummyFact())
         viewModel.deleteFact(getDummyFact())
-        viewModel.savedFacts.test {
-            assertEquals(listOf<Fact>(), this.awaitItem())
+        fakeRepo.readFacts().test {
+            assertEquals(listOf<List<Fact>>(), this.awaitItem())
+            this.awaitComplete()
         }
     }
 }
