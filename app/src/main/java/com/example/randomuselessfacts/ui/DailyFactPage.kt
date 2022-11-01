@@ -1,6 +1,5 @@
 package com.example.randomuselessfacts.ui
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
@@ -9,13 +8,12 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -32,8 +30,6 @@ fun DailyFactPage(viewModel: MainViewModel) {
     val dailyFact = viewModel.dailyFact.observeAsState()
     val randomFact = viewModel.randomFact.observeAsState()
 
-    val context = LocalContext.current
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -44,23 +40,18 @@ fun DailyFactPage(viewModel: MainViewModel) {
         UiState(
             liveData = dailyFact,
             cardTitle = "Daily Fact",
-            { fact ->
-                viewModel.saveFact(fact)
-                Toast.makeText(context, "Saved!", Toast.LENGTH_SHORT).show()
-            },
+            { fact -> viewModel.saveOrDeleteFact(fact) },
             viewModel.isDailyFactSaved.value
         )
         RandomButton { viewModel.getRandomFact() }
-        if (randomFact.value != null)
+        if (randomFact.value != null) {
             UiState(
                 liveData = randomFact,
                 cardTitle = "Random Fact",
-                { fact ->
-                    viewModel.saveFact(fact)
-                    Toast.makeText(context, "Saved!", Toast.LENGTH_SHORT).show()
-                },
+                { fact -> viewModel.saveOrDeleteFact(fact) },
                 viewModel.isRandomFactSaved.value
             )
+        }
     }
 }
 

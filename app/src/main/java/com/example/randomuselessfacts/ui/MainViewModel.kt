@@ -41,8 +41,8 @@ class MainViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             savedFacts = repository.readFacts().stateIn(viewModelScope)
+            getDailyFact()
         }
-        getDailyFact()
     }
 
     private fun handleResponse(response: Response<Fact>): Resource<Fact> {
@@ -51,48 +51,49 @@ class MainViewModel @Inject constructor(
     }
 
     private fun getDailyFact() {
-        isDailyFactSaved.value = false
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val response = repository.getDailyFact()
                 _dailyFact.postValue(handleResponse(response))
-//                response.body()?.id?.run {
-//                    isDailyFactSaved.value = checkIsFactSaved(this)
-//                }
+                response.body()?.id?.let {
+                    isDailyFactSaved.value = checkIsFactSaved(it)
+                }
             } catch (e: Exception) {
                 _dailyFact.postValue(Resource.Error("Could not load daily fact"))
             }
         }
     }
 
-//    private fun checkIsFactSaved(id: String) = savedFacts.value.find { it.id == id } != null
-
     fun getRandomFact() {
-        isRandomFactSaved.value = false
         if (dailyFact.value is Resource.Error)
             getDailyFact()
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val response = repository.getRandomFact()
                 _randomFact.postValue(handleResponse(response))
-//                response.body()?.id?.run {
-//                    isRandomFactSaved.value = checkIsFactSaved(this)
-//                }
+                response.body()?.id?.let {
+                    isRandomFactSaved.value = checkIsFactSaved(it)
+                }
             } catch (e: Exception) {
                 _randomFact.postValue(Resource.Error("Could not load random fact"))
             }
         }
     }
 
-    fun saveFact(fact: Fact) = viewModelScope.launch(Dispatchers.IO) {
-        repository.saveFact(fact)
-        if (fact.id == _dailyFact.value?.data?.id) isDailyFactSaved.value = true
-        if (fact.id == _randomFact.value?.data?.id) isRandomFactSaved.value = true
-    }
+    private fun checkIsFactSaved(id: String) =
+        savedFacts.value.find { it.id == id } != null
 
-    fun deleteFact(fact: Fact) = viewModelScope.launch(Dispatchers.IO) {
-        repository.deleteFact(fact)
-        if (fact.id == _dailyFact.value?.data?.id) isDailyFactSaved.value = false
-        if (fact.id == _randomFact.value?.data?.id) isRandomFactSaved.value = false
+    fun saveOrDeleteFact(fact: Fact) {
+        viewModelScope.launch(Dispatchers.IO){
+            if (checkIsFactSaved(fact.id)) {
+                repository.deleteFact(fact)
+                if (fact.id == _dailyFact.value?.data?.id) isDailyFactSaved.value = false
+                if (fact.id == _randomFact.value?.data?.id) isRandomFactSaved.value = false
+            } else {
+                repository.saveFact(fact)
+                if (fact.id == _dailyFact.value?.data?.id) isDailyFactSaved.value = true
+                if (fact.id == _randomFact.value?.data?.id) isRandomFactSaved.value = true
+            }
+        }
     }
 }

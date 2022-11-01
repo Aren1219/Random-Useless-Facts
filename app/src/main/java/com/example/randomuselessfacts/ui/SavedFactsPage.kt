@@ -1,7 +1,5 @@
 package com.example.randomuselessfacts.ui
 
-import android.content.Context
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,10 +12,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.randomuselessfacts.model.Fact
 
@@ -25,7 +21,6 @@ import com.example.randomuselessfacts.model.Fact
 fun SavedFactsPage(viewModel: MainViewModel, listState: LazyListState) {
 
     val list = viewModel.savedFacts.collectAsState()
-    val context = LocalContext.current
 
     if (list.value.isEmpty()) {
         Box(
@@ -36,8 +31,7 @@ fun SavedFactsPage(viewModel: MainViewModel, listState: LazyListState) {
         }
     } else {
         FactsList(list = list.value, listState = listState) { fact ->
-            viewModel.deleteFact(fact)
-            Toast.makeText(context, "Deleted!", Toast.LENGTH_SHORT).show()
+            viewModel.saveOrDeleteFact(fact)
         }
     }
 

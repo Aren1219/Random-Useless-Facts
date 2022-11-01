@@ -14,12 +14,13 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+
+//TODO: Not working, need to update
 
 class MainViewModelTest {
 
@@ -37,8 +38,11 @@ class MainViewModelTest {
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
         fakeRepo = FakeRepository()
-        viewModel = MainViewModel(fakeRepo)
-        viewModel.dailyFact.getOrAwaitValue()
+        runBlocking {
+            viewModel = MainViewModel(fakeRepo)
+            viewModel.savedFacts.test { this.awaitComplete() }
+            viewModel.dailyFact.getOrAwaitValue()
+        }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -69,7 +73,7 @@ class MainViewModelTest {
 
     @Test
     fun `save fact`() = runBlocking {
-        viewModel.saveFact(getDummyFact())
+        viewModel.saveOrDeleteFact(getDummyFact())
         fakeRepo.readFacts().test {
             assertEquals(listOf(getDummyFact()), this.awaitItem())
             this.awaitComplete()
@@ -78,8 +82,8 @@ class MainViewModelTest {
 
     @Test
     fun `delete fact`() = runBlocking {
-        viewModel.saveFact(getDummyFact())
-        viewModel.deleteFact(getDummyFact())
+        viewModel.saveOrDeleteFact(getDummyFact())
+//        viewModel.deleteFact(getDummyFact())
         fakeRepo.readFacts().test {
             assertEquals(listOf<List<Fact>>(), this.awaitItem())
             this.awaitComplete()
