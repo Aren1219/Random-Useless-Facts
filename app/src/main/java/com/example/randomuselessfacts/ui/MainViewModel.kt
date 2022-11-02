@@ -42,6 +42,8 @@ class MainViewModel @Inject constructor(
 
     private fun initialiseSavedFacts() = viewModelScope.launch{
         savedFacts = repository.readFacts().stateIn(viewModelScope)
+        isDailyFactSaved.value = dailyFact.value.data?.id?.let { checkIsFactSaved(it) } == true
+        isRandomFactSaved.value = randomFact.value?.data?.id?.let { checkIsFactSaved(it) } == true
     }
 
     private fun handleResponse(response: Response<Fact>): Resource<Fact> {
