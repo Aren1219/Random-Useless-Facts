@@ -10,7 +10,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -27,8 +27,8 @@ import com.example.randomuselessfacts.util.Resource
 @Composable
 fun DailyFactPage(viewModel: MainViewModel) {
 
-    val dailyFact = viewModel.dailyFact.observeAsState()
-    val randomFact = viewModel.randomFact.observeAsState()
+    val dailyFact = viewModel.dailyFact.collectAsState()
+    val randomFact = viewModel.randomFact.collectAsState()
 
     Column(
         modifier = Modifier

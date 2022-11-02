@@ -1,34 +1,23 @@
 package com.example.randomuselessfacts.ui
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.cash.turbine.test
 import com.example.randomuselessfacts.DummyData.getDummyFact
-import com.example.randomuselessfacts.getOrAwaitValue
-import com.example.randomuselessfacts.model.Fact
 import com.example.randomuselessfacts.repo.FakeRepository
 import com.example.randomuselessfacts.util.Resource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
-import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestRule
-
-//TODO: Not working, need to update
 
 class MainViewModelTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val testDispatcher = StandardTestDispatcher()
-
-    @get:Rule
-    val instantTaskExecutionRule: TestRule = InstantTaskExecutorRule()
 
     private lateinit var viewModel: MainViewModel
     private lateinit var fakeRepo: FakeRepository
@@ -38,37 +27,30 @@ class MainViewModelTest {
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
         fakeRepo = FakeRepository()
-        runBlocking {
-            viewModel = MainViewModel(fakeRepo)
-            viewModel.savedFacts.test { this.awaitComplete() }
-            viewModel.dailyFact.getOrAwaitValue()
+        viewModel = MainViewModel(fakeRepo)
+    }
+
+    @Test
+    fun `daily fact and random fact api calls`() = runBlocking {
+        viewModel.getRandomFact()
+        viewModel.dailyFact.test {
+            this.awaitItem()
+            assertEquals(getDummyFact(), this.awaitItem().data)
+        }
+        viewModel.randomFact.test {
+//            this.awaitItem()
+            assertEquals(getDummyFact(), this.awaitItem()?.data)
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    @After
-    fun cleanUp() {
-        Dispatchers.resetMain()
-    }
-
     @Test
-    fun `daily fact api`() {
-        assertEquals(getDummyFact(), viewModel.dailyFact.value!!.data)
-    }
-
-    @Test
-    fun `random fact api`() {
-        viewModel.getRandomFact()
-        val result = viewModel.randomFact.getOrAwaitValue()
-        assertEquals(getDummyFact(), result.data)
-    }
-
-    @Test
-    fun `random fact api error`() {
+    fun `random fact api error`() = runBlocking {
         fakeRepo.errorResponse = true
         viewModel.getRandomFact()
-        val result = viewModel.randomFact.getOrAwaitValue()
-        assertTrue(result is Resource.Error)
+        viewModel.randomFact.test {
+            this.awaitItem()
+            assertTrue(this.awaitItem() is Resource.Error)
+        }
     }
 
     @Test
@@ -76,17 +58,15 @@ class MainViewModelTest {
         viewModel.saveOrDeleteFact(getDummyFact())
         fakeRepo.readFacts().test {
             assertEquals(listOf(getDummyFact()), this.awaitItem())
-            this.awaitComplete()
         }
     }
 
     @Test
-    fun `delete fact`() = runBlocking {
-        viewModel.saveOrDeleteFact(getDummyFact())
-//        viewModel.deleteFact(getDummyFact())
+    fun `save multiple facts`() = runBlocking {
+        viewModel.saveOrDeleteFact(getDummyFact("1"))
+        viewModel.saveOrDeleteFact(getDummyFact("2"))
         fakeRepo.readFacts().test {
-            assertEquals(listOf<List<Fact>>(), this.awaitItem())
-            this.awaitComplete()
+            assertEquals(listOf(getDummyFact("1"), getDummyFact("2")), this.awaitItem())
         }
     }
 }

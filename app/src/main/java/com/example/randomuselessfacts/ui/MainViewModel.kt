@@ -1,8 +1,6 @@
 package com.example.randomuselessfacts.ui
 
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.randomuselessfacts.model.Fact
@@ -10,9 +8,10 @@ import com.example.randomuselessfacts.repo.Repository
 import com.example.randomuselessfacts.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import okio.IOException
+import retrofit2.HttpException
 import retrofit2.Response
 import javax.inject.Inject
 
@@ -21,28 +20,28 @@ class MainViewModel @Inject constructor(
     private val repository: Repository
 ) : ViewModel() {
 
-
     //daily fact page ui states
 
-    private val _dailyFact: MutableLiveData<Resource<Fact>> = MutableLiveData(Resource.Loading())
-    val dailyFact: LiveData<Resource<Fact>> = _dailyFact
+    private val _dailyFact: MutableStateFlow<Resource<Fact>> = MutableStateFlow(Resource.Loading())
+    val dailyFact: StateFlow<Resource<Fact>> = _dailyFact
 
-    private val _randomFact: MutableLiveData<Resource<Fact>> = MutableLiveData()
-    val randomFact: LiveData<Resource<Fact>> = _randomFact
+    private val _randomFact: MutableStateFlow<Resource<Fact>?> = MutableStateFlow(null)
+    val randomFact: StateFlow<Resource<Fact>?> = _randomFact
 
-    var isDailyFactSaved = mutableStateOf(false)
-    var isRandomFactSaved = mutableStateOf(false)
+    val isDailyFactSaved = mutableStateOf(false)
+    val isRandomFactSaved = mutableStateOf(false)
 
     //saved facts page ui states
 
-    lateinit var savedFacts: StateFlow<List<Fact>>
-
+    var savedFacts: StateFlow<List<Fact>> = MutableStateFlow(listOf())
 
     init {
-        viewModelScope.launch {
-            savedFacts = repository.readFacts().stateIn(viewModelScope)
-            getDailyFact()
-        }
+        initialiseSavedFacts()
+        getDailyFact()
+    }
+
+    private fun initialiseSavedFacts() = viewModelScope.launch{
+        savedFacts = repository.readFacts().stateIn(viewModelScope)
     }
 
     private fun handleResponse(response: Response<Fact>): Resource<Fact> {
@@ -53,13 +52,16 @@ class MainViewModel @Inject constructor(
     private fun getDailyFact() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
+                _dailyFact.emit(Resource.Loading())
                 val response = repository.getDailyFact()
-                _dailyFact.postValue(handleResponse(response))
+                _dailyFact.emit(handleResponse(response))
                 response.body()?.id?.let {
                     isDailyFactSaved.value = checkIsFactSaved(it)
                 }
-            } catch (e: Exception) {
-                _dailyFact.postValue(Resource.Error("Could not load daily fact"))
+            } catch (e: HttpException) {
+                _dailyFact.emit(Resource.Error("Could not load daily fact"))
+            } catch (e: IOException) {
+                _dailyFact.emit(Resource.Error("Check internet"))
             }
         }
     }
@@ -69,13 +71,16 @@ class MainViewModel @Inject constructor(
             getDailyFact()
         viewModelScope.launch(Dispatchers.IO) {
             try {
+                _randomFact.emit(Resource.Loading())
                 val response = repository.getRandomFact()
-                _randomFact.postValue(handleResponse(response))
+                _randomFact.emit(handleResponse(response))
                 response.body()?.id?.let {
                     isRandomFactSaved.value = checkIsFactSaved(it)
                 }
-            } catch (e: Exception) {
-                _randomFact.postValue(Resource.Error("Could not load random fact"))
+            } catch (e: HttpException) {
+                _randomFact.emit(Resource.Error("Could not load random fact"))
+            } catch (e: IOException) {
+                _randomFact.emit(Resource.Error("Check internet"))
             }
         }
     }
@@ -84,14 +89,14 @@ class MainViewModel @Inject constructor(
         savedFacts.value.find { it.id == id } != null
 
     fun saveOrDeleteFact(fact: Fact) {
-        viewModelScope.launch(Dispatchers.IO){
+        viewModelScope.launch(Dispatchers.IO) {
             if (checkIsFactSaved(fact.id)) {
                 repository.deleteFact(fact)
-                if (fact.id == _dailyFact.value?.data?.id) isDailyFactSaved.value = false
+                if (fact.id == _dailyFact.value.data?.id) isDailyFactSaved.value = false
                 if (fact.id == _randomFact.value?.data?.id) isRandomFactSaved.value = false
             } else {
                 repository.saveFact(fact)
-                if (fact.id == _dailyFact.value?.data?.id) isDailyFactSaved.value = true
+                if (fact.id == _dailyFact.value.data?.id) isDailyFactSaved.value = true
                 if (fact.id == _randomFact.value?.data?.id) isRandomFactSaved.value = true
             }
         }
