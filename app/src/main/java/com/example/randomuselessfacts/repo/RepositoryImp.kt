@@ -10,11 +10,11 @@ import javax.inject.Inject
 class RepositoryImp @Inject constructor(
     private val factsApi: FactsApi,
     private val factDao: FactDao
-): Repository {
+) : Repository {
 
-    override suspend fun getRandomFact(): Response<Fact> = factsApi.getRandomFact()
+    override suspend fun getRandomFact() = factsApi.getRandomFact()
 
-    override suspend fun getDailyFact(): Response<Fact> = factsApi.getDailyFact()
+    override suspend fun getDailyFact() = factsApi.getDailyFact()
 
     override suspend fun saveFact(fact: Fact) {
         factDao.insertFact(fact)
@@ -25,4 +25,6 @@ class RepositoryImp @Inject constructor(
     override suspend fun deleteFact(fact: Fact) {
         factDao.deleteFact(fact)
     }
+
+    override suspend fun checkFactSaved(id: String) = factDao.isFactSaved(id)
 }

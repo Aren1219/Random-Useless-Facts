@@ -10,4 +10,5 @@ interface Repository {
     suspend fun saveFact(fact: Fact)
     fun readFacts(): Flow<List<Fact>>
     suspend fun deleteFact(fact: Fact)
+    suspend fun checkFactSaved(id: String): Boolean
 }

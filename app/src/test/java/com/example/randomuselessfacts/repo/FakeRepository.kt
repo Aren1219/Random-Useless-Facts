@@ -29,6 +29,7 @@ class FakeRepository : Repository {
 
     override suspend fun saveFact(fact: Fact) {
         savedFacts.add(fact)
+//        savedFactsStateFlow.value = savedFacts
         savedFactsStateFlow.emit(savedFacts)
     }
 
@@ -36,6 +37,11 @@ class FakeRepository : Repository {
 
     override suspend fun deleteFact(fact: Fact) {
         savedFacts.remove(fact)
+//        savedFactsStateFlow.value = savedFacts
         savedFactsStateFlow.emit(savedFacts)
+    }
+
+    override suspend fun checkFactSaved(id: String): Boolean {
+        return savedFacts.find { fact -> fact.id == id } != null
     }
 }

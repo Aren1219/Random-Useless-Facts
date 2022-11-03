@@ -1,7 +1,10 @@
 package com.example.randomuselessfacts.ui
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.viewmodel.compose.viewModel
 import app.cash.turbine.test
 import com.example.randomuselessfacts.DummyData.getDummyFact
+import com.example.randomuselessfacts.model.Fact
 import com.example.randomuselessfacts.repo.FakeRepository
 import com.example.randomuselessfacts.util.Resource
 import kotlinx.coroutines.Dispatchers
@@ -12,12 +15,17 @@ import kotlinx.coroutines.test.setMain
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 
 class MainViewModelTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val testDispatcher = StandardTestDispatcher()
+
+    @get:Rule
+    val instantTaskExecutionRule: TestRule = InstantTaskExecutorRule()
 
     private lateinit var viewModel: MainViewModel
     private lateinit var fakeRepo: FakeRepository
@@ -67,6 +75,18 @@ class MainViewModelTest {
         viewModel.saveOrDeleteFact(getDummyFact("2"))
         fakeRepo.readFacts().test {
             assertEquals(listOf(getDummyFact("1"), getDummyFact("2")), this.awaitItem())
+        }
+    }
+
+    @Test
+    fun `delete facts`() = runBlocking {
+        viewModel.saveOrDeleteFact(getDummyFact("1"))
+        fakeRepo.readFacts().test {
+            assertEquals(listOf(getDummyFact("1")), this.awaitItem())
+        }
+        viewModel.saveOrDeleteFact(getDummyFact("1"))
+        fakeRepo.readFacts().test {
+            assertEquals(listOf<List<Fact>>(), this.awaitItem())
         }
     }
 }

@@ -15,4 +15,7 @@ interface FactDao {
 
     @Delete
     suspend fun deleteFact(data: Fact)
+
+    @Query("SELECT EXISTS(SELECT * FROM facts WHERE id = :id)")
+    fun isFactSaved(id : String) : Boolean
 }

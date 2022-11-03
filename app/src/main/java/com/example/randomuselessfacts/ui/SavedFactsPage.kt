@@ -20,6 +20,7 @@ import com.example.randomuselessfacts.model.Fact
 @Composable
 fun SavedFactsPage(viewModel: MainViewModel, listState: LazyListState) {
 
+
     val list = viewModel.savedFacts.collectAsState()
 
     if (list.value.isEmpty()) {

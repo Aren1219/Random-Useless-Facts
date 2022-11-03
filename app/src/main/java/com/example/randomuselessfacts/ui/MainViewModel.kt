@@ -40,7 +40,7 @@ class MainViewModel @Inject constructor(
         getDailyFact()
     }
 
-    private fun initialiseSavedFacts() = viewModelScope.launch{
+    private fun initialiseSavedFacts() = viewModelScope.launch(Dispatchers.IO) {
         savedFacts = repository.readFacts().stateIn(viewModelScope)
         isDailyFactSaved.value = dailyFact.value.data?.id?.let { checkIsFactSaved(it) } == true
         isRandomFactSaved.value = randomFact.value?.data?.id?.let { checkIsFactSaved(it) } == true
@@ -87,8 +87,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun checkIsFactSaved(id: String) =
-        savedFacts.value.find { it.id == id } != null
+    private suspend fun checkIsFactSaved(id: String) = repository.checkFactSaved(id)
 
     fun saveOrDeleteFact(fact: Fact) {
         viewModelScope.launch(Dispatchers.IO) {
