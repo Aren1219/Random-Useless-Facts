@@ -12,8 +12,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.setMain
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -42,11 +41,10 @@ class MainViewModelTest {
     fun `daily fact and random fact api calls`() = runBlocking {
         viewModel.getRandomFact()
         viewModel.dailyFact.test {
-            this.awaitItem()
+            assertTrue(this.awaitItem() is Resource.Loading)
             assertEquals(getDummyFact(), this.awaitItem().data)
         }
         viewModel.randomFact.test {
-//            this.awaitItem()
             assertEquals(getDummyFact(), this.awaitItem()?.data)
         }
     }
@@ -56,7 +54,7 @@ class MainViewModelTest {
         fakeRepo.errorResponse = true
         viewModel.getRandomFact()
         viewModel.randomFact.test {
-            this.awaitItem()
+            assertTrue(this.awaitItem() is Resource.Loading)
             assertTrue(this.awaitItem() is Resource.Error)
         }
     }
