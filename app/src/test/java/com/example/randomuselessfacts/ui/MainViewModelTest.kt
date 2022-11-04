@@ -72,6 +72,9 @@ class MainViewModelTest {
     @Test
     fun `save multiple facts`() = runBlocking {
         viewModel.saveOrDeleteFact(getDummyFact("1"))
+        fakeRepo.readFacts().test {
+            assertEquals(listOf(getDummyFact("1")), this.awaitItem())
+        }
         viewModel.saveOrDeleteFact(getDummyFact("2"))
         fakeRepo.readFacts().test {
             assertEquals(listOf(getDummyFact("1"), getDummyFact("2")), this.awaitItem())

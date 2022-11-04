@@ -29,7 +29,6 @@ class FakeRepository : Repository {
 
     override suspend fun saveFact(fact: Fact) {
         savedFacts.add(fact)
-//        savedFactsStateFlow.value = savedFacts
         savedFactsStateFlow.emit(savedFacts)
     }
 
@@ -37,7 +36,6 @@ class FakeRepository : Repository {
 
     override suspend fun deleteFact(fact: Fact) {
         savedFacts.remove(fact)
-//        savedFactsStateFlow.value = savedFacts
         savedFactsStateFlow.emit(savedFacts)
     }
 
