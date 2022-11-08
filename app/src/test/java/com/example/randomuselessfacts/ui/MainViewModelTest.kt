@@ -1,7 +1,6 @@
 package com.example.randomuselessfacts.ui
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.viewmodel.compose.viewModel
 import app.cash.turbine.test
 import com.example.randomuselessfacts.DummyData.getDummyFact
 import com.example.randomuselessfacts.model.Fact
@@ -41,11 +40,11 @@ class MainViewModelTest {
     fun `daily fact and random fact api calls`() = runBlocking {
         viewModel.getRandomFact()
         viewModel.dailyFact.test {
-            assertTrue(this.awaitItem() is Resource.Loading)
-            assertEquals(getDummyFact(), this.awaitItem().data)
+            assertTrue(awaitItem() is Resource.Loading)
+            assertEquals(getDummyFact(), awaitItem().data)
         }
         viewModel.randomFact.test {
-            assertEquals(getDummyFact(), this.awaitItem()?.data)
+            assertEquals(getDummyFact(), awaitItem()?.data)
         }
     }
 
@@ -54,8 +53,8 @@ class MainViewModelTest {
         fakeRepo.errorResponse = true
         viewModel.getRandomFact()
         viewModel.randomFact.test {
-            assertTrue(this.awaitItem() is Resource.Loading)
-            assertTrue(this.awaitItem() is Resource.Error)
+            assertTrue(awaitItem() is Resource.Loading)
+            assertTrue(awaitItem() is Resource.Error)
         }
     }
 
@@ -63,7 +62,7 @@ class MainViewModelTest {
     fun `save fact`() = runBlocking {
         viewModel.saveOrDeleteFact(getDummyFact())
         fakeRepo.readFacts().test {
-            assertEquals(listOf(getDummyFact()), this.awaitItem())
+            assertEquals(listOf(getDummyFact()), awaitItem())
         }
     }
 
@@ -71,11 +70,11 @@ class MainViewModelTest {
     fun `save multiple facts`() = runBlocking {
         viewModel.saveOrDeleteFact(getDummyFact("1"))
         fakeRepo.readFacts().test {
-            assertEquals(listOf(getDummyFact("1")), this.awaitItem())
+            assertEquals(listOf(getDummyFact("1")), awaitItem())
         }
         viewModel.saveOrDeleteFact(getDummyFact("2"))
         fakeRepo.readFacts().test {
-            assertEquals(listOf(getDummyFact("1"), getDummyFact("2")), this.awaitItem())
+            assertEquals(listOf(getDummyFact("1"), getDummyFact("2")), awaitItem())
         }
     }
 
@@ -83,11 +82,11 @@ class MainViewModelTest {
     fun `delete facts`() = runBlocking {
         viewModel.saveOrDeleteFact(getDummyFact("1"))
         fakeRepo.readFacts().test {
-            assertEquals(listOf(getDummyFact("1")), this.awaitItem())
+            assertEquals(listOf(getDummyFact("1")), awaitItem())
         }
         viewModel.saveOrDeleteFact(getDummyFact("1"))
         fakeRepo.readFacts().test {
-            assertEquals(listOf<List<Fact>>(), this.awaitItem())
+            assertEquals(listOf<List<Fact>>(), awaitItem())
         }
     }
 }

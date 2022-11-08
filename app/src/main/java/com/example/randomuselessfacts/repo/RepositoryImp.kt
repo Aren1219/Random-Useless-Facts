@@ -4,7 +4,6 @@ import com.example.randomuselessfacts.api.FactsApi
 import com.example.randomuselessfacts.database.FactDao
 import com.example.randomuselessfacts.model.Fact
 import kotlinx.coroutines.flow.Flow
-import retrofit2.Response
 import javax.inject.Inject
 
 class RepositoryImp @Inject constructor(

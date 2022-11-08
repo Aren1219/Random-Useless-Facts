@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -55,8 +54,6 @@ fun Navigation(
     val navController = rememberNavController()
     val items = listOf(Screen.DailyFact, Screen.SavedFacts)
 
-    val listState = rememberLazyListState()
-
     Scaffold(
         topBar = {
             TopAppBar {
@@ -93,7 +90,7 @@ fun Navigation(
                 DailyFactPage(viewModel = viewModel)
             }
             composable(Screen.SavedFacts.route) {
-                SavedFactsPage(viewModel = viewModel, listState = listState)
+                SavedFactsPage(viewModel = viewModel)
             }
         }
     }
