@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -49,7 +50,12 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Navigation(
     viewModel: MainViewModel
-){
+) {
+
+    LaunchedEffect(true) {
+        viewModel.initialiseSavedFacts()
+        viewModel.getDailyFact()
+    }
 
     val navController = rememberNavController()
     val items = listOf(Screen.DailyFact, Screen.SavedFacts)
@@ -68,8 +74,10 @@ fun Navigation(
                     BottomNavigationItem(
                         selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                         onClick = {
-                            navController.navigate(screen.route){
-                                popUpTo(navController.graph.findStartDestination().id) {saveState = true}
+                            navController.navigate(screen.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
                                 launchSingleTop = true
                                 restoreState = true
                             }
@@ -85,7 +93,7 @@ fun Navigation(
             navController = navController,
             startDestination = Screen.DailyFact.route,
             modifier = Modifier.padding(innerPadding)
-        ){
+        ) {
             composable(Screen.DailyFact.route) {
                 DailyFactPage(viewModel = viewModel)
             }

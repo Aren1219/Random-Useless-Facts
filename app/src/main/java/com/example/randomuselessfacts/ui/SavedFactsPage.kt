@@ -10,19 +10,21 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.randomuselessfacts.model.Fact
 
+@OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun SavedFactsPage(viewModel: MainViewModel) {
 
+    val list by viewModel.savedFacts.collectAsStateWithLifecycle()
 
-    val list = viewModel.savedFacts.collectAsState()
-
-    if (list.value.isEmpty()) {
+    if (list.isEmpty()) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -30,7 +32,7 @@ fun SavedFactsPage(viewModel: MainViewModel) {
             Text(text = "Nothing here...")
         }
     } else {
-        FactsList(list = list.value) { fact ->
+        FactsList(list = list) { fact ->
             viewModel.saveOrDeleteFact(fact)
         }
     }

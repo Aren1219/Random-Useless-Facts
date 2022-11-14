@@ -1,4 +1,4 @@
-package com.example.randomuselessfacts.util
+package com.example.randomuselessfacts.di
 
 import android.content.Context
 import androidx.room.Room

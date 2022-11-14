@@ -1,5 +1,6 @@
 package com.example.randomuselessfacts.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
@@ -9,11 +10,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -27,8 +27,8 @@ import com.example.randomuselessfacts.util.Resource
 @Composable
 fun DailyFactPage(viewModel: MainViewModel) {
 
-    val dailyFact = viewModel.dailyFact.collectAsState()
-    val randomFact = viewModel.randomFact.collectAsState()
+    val dailyFact = viewModel.dailyFact
+    val randomFact = viewModel.randomFact
 
     Column(
         modifier = Modifier
@@ -41,15 +41,15 @@ fun DailyFactPage(viewModel: MainViewModel) {
             liveData = dailyFact,
             cardTitle = "Daily Fact",
             { fact -> viewModel.saveOrDeleteFact(fact) },
-            viewModel.isDailyFactSaved.value
+            viewModel.isDailyFactSaved
         )
         RandomButton { viewModel.getRandomFact() }
-        if (randomFact.value != null) {
+        if (randomFact != null) {
             UiState(
                 liveData = randomFact,
                 cardTitle = "Random Fact",
                 { fact -> viewModel.saveOrDeleteFact(fact) },
-                viewModel.isRandomFactSaved.value
+                viewModel.isRandomFactSaved
             )
         }
     }
@@ -57,28 +57,28 @@ fun DailyFactPage(viewModel: MainViewModel) {
 
 @Composable
 fun UiState(
-    liveData: State<Resource<Fact>?>,
+    liveData: Resource<Fact>?,
     cardTitle: String,
     saveFact: (Fact) -> Unit,
     saved: Boolean
 ) {
 
-    when (liveData.value) {
+    when (liveData) {
         is Resource.Success<*> -> {
             FactCard(
-                liveData.value!!.data!!,
+                liveData.data!!,
                 cardTitle,
                 if (saved) Icons.Default.Favorite
                 else Icons.Default.FavoriteBorder
             ) {
-                saveFact(liveData.value!!.data!!)
+                saveFact(liveData.data)
             }
         }
         is Resource.Loading -> {
             CircularProgressIndicator()
         }
         else -> {
-            liveData.value?.message?.let { Text(text = it) }
+            liveData?.message?.let { Text(text = it) }
         }
     }
 }
@@ -96,6 +96,7 @@ fun FactCard(
             .padding(16.dp),
         elevation = 16.dp
     ) {
+        val context = LocalContext.current
         Column(modifier = Modifier.padding(16.dp)) {
             if (title != null) {
                 Text(
@@ -138,6 +139,11 @@ fun FactCard(
                                 try {
                                     uriHandler.openUri(it.item)
                                 } catch (e: Exception) {
+                                    Toast.makeText(
+                                        context,
+                                        "Can't open link",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                     e.printStackTrace()
                                 }
                             }
